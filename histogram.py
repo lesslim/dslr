@@ -17,8 +17,7 @@ def historgam(df, course):
     plt.ylabel("Percentage of students")
     for house in ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]:
         plt.hist(
-            faculty_grades(df, house, course),
-            alpha=0.3, label=house, density=True
+            faculty_grades(df, house, course), alpha=0.3, label=house, density=True
         )
     plt.legend()
     plt.show()

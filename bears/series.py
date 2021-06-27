@@ -1,7 +1,15 @@
 import operator
 from typing import (
-    Any, Callable, Collection, Dict, Iterable, List, Mapping, Optional, Tuple,
-    Union
+    Any,
+    Callable,
+    Collection,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
 )
 
 from .i_hate_42 import max_, min_
@@ -10,11 +18,13 @@ from .i_hate_42 import max_, min_
 class Series(Collection):
     _default_values: Dict[type, Any] = {float: float("NaN")}
 
-    def __init__(self,
-                 data: Optional[Iterable] = None,
-                 dtype: Optional[type] = None,
-                 use_default_values: bool = True,
-                 try_convert_strings: bool = False):
+    def __init__(
+        self,
+        data: Optional[Iterable] = None,
+        dtype: Optional[type] = None,
+        use_default_values: bool = True,
+        try_convert_strings: bool = False,
+    ):
         """
         Create a new Series object with the data and dtype provided.
         If dtype is not provided, it is deduced to be the type of the first
@@ -27,7 +37,8 @@ class Series(Collection):
 
         if data is not None:
             self._data, self._dtype = self._convert_dtype_iter(
-                data, dtype, try_convert_strings)
+                data, dtype, try_convert_strings
+            )
 
         if self._dtype not in {bool, float, int, str}:
             raise NotImplementedError(f"Unsupported dtype: {self._dtype}")
@@ -85,10 +96,9 @@ class Series(Collection):
         """kwargs to keep compatibility with pandas"""
         return min_(self._data)
 
-    def map(self,
-            arg: Union[Callable, Mapping, "Series"],
-            na_action: Optional[str] = None
-            ) -> "Series":
+    def map(
+        self, arg: Union[Callable, Mapping, "Series"], na_action: Optional[str] = None
+    ) -> "Series":
         """
         Map values of Series according to input correspondence. Used for
         substituting each value in a Series with another value, that may be
@@ -98,17 +108,19 @@ class Series(Collection):
         if na_action is not None:
             if na_action not in {"ignore"}:
                 raise ValueError(f"Invalid value of na_action={na_action}")
-            skipna = (self._dtype == float)
+            skipna = self._dtype == float
         if isinstance(arg, Series):
             if len(arg) != len(self):
                 raise ValueError(f"Size mismatch, got {len(arg)}, {len(self)}")
             return arg.copy() if not skipna else arg[self == self]
         if callable(arg):
-            return Series([arg(elem) for elem in self._data
-                           if not skipna or elem == elem])
+            return Series(
+                [arg(elem) for elem in self._data if not skipna or elem == elem]
+            )
         if isinstance(arg, Mapping):
-            return Series([arg[elem] for elem in self._data
-                           if not skipna or elem == elem])
+            return Series(
+                [arg[elem] for elem in self._data if not skipna or elem == elem]
+            )
         raise ValueError(f"Cannot map with {type(arg)}")
 
     def percentile(self, rank: float) -> Any:
@@ -148,19 +160,17 @@ class Series(Collection):
         return len(self._data)
 
     def __repr__(self) -> str:
-        return (f"bears.Series, len={len(self)}, dtype={self._dtype}:"
-                f"\n{self._data}")
+        return f"bears.Series, len={len(self)}, dtype={self._dtype}:" f"\n{self._data}"
 
-    def __setitem__(self,
-                    key: Union[int, slice, "Series"],
-                    value: Any) -> None:
+    def __setitem__(self, key: Union[int, slice, "Series"], value: Any) -> None:
         index = self._get_index(key)
 
         if isinstance(value, Iterable) and not isinstance(value, str):
             data, _ = self._convert_dtype_iter(value, self._dtype)
             if len(data) != len(index):
-                raise ValueError(f"Expected exactly {len(self)} elements,"
-                                 f" received {len(data)}")
+                raise ValueError(
+                    f"Expected exactly {len(self)} elements," f" received {len(data)}"
+                )
             for i, v in zip(index, data):
                 self._data[i] = v
 
@@ -171,7 +181,7 @@ class Series(Collection):
                 self._data[i] = value
 
     def __str__(self) -> str:
-        return (f"{self._data}")
+        return f"{self._data}"
 
     #
     #  Operators ==============================================================
@@ -240,9 +250,7 @@ class Series(Collection):
     #  Private methods ========================================================
     #
 
-    def _binary_op(self,
-                   other: Any,
-                   operator: Callable[[Any, Any], Any]) -> "Series":
+    def _binary_op(self, other: Any, operator: Callable[[Any, Any], Any]) -> "Series":
         """
         Is a higher-order polymorphic function, so no proper type hints...
         """
@@ -254,11 +262,12 @@ class Series(Collection):
             data = [operator(lhs, other) for lhs in self]
         return Series._from_data(data, Series._deduce_dtype(data))
 
-    def _convert_dtype_iter(self,
-                            data: Iterable,
-                            dtype: Optional[type] = None,
-                            try_convert_strings: bool = False
-                            ) -> Tuple[List, type]:
+    def _convert_dtype_iter(
+        self,
+        data: Iterable,
+        dtype: Optional[type] = None,
+        try_convert_strings: bool = False,
+    ) -> Tuple[List, type]:
         out = []
         for elem in data:
             if dtype is None:
@@ -277,8 +286,7 @@ class Series(Collection):
         try:
             return dtype(item)
         except ValueError:
-            if (self._use_default_values
-                    and dtype in Series._default_values):
+            if self._use_default_values and dtype in Series._default_values:
                 return Series._default_values[dtype]
             else:
                 raise TypeError(f"Couldn't convert {item} to {dtype}.")
@@ -309,8 +317,7 @@ class Series(Collection):
                 return str
         return out
 
-    def _get_index(self,
-                   key: Union[int, slice, "Series"]) -> Collection[int]:
+    def _get_index(self, key: Union[int, slice, "Series"]) -> Collection[int]:
         if isinstance(key, int):
             return (key,)
         if isinstance(key, slice):

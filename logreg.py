@@ -13,8 +13,7 @@ class LogisticRegression:
         m = X.shape[1]
         self.targets = np.unique(y)
 
-        self.weights = np.zeros(len(self.targets) * m) \
-            .reshape(len(self.targets), m)
+        self.weights = np.zeros(len(self.targets) * m).reshape(len(self.targets), m)
 
         y_hot = np.zeros((len(self.targets), len(y)))
         for i in range(len(self.targets)):

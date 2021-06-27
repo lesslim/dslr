@@ -7,17 +7,15 @@ from .series import Series
 from .i_hate_42 import min_
 
 
-class DataFrame():
+class DataFrame:
     """
     A DataFrame is an aggregation of Series objects
     """
-    def __init__(self,
-                 cols: List[Series],
-                 names: Optional[Collection[str]] = None):
+
+    def __init__(self, cols: List[Series], names: Optional[Collection[str]] = None):
         self._cols = cols
         self._nrows = 0 if len(cols) == 0 else len(cols[0])
-        self._names = ({} if names is None
-                       else {name: i for i, name in enumerate(names)})
+        self._names = {} if names is None else {name: i for i, name in enumerate(names)}
         self._id2names = ["" for _ in range(len(self._names))]
         for name, i in self._names.items():
             self._id2names[i] = name
@@ -29,10 +27,11 @@ class DataFrame():
         return Series(range(len(self)), int)
 
     def append(self, df: "DataFrame"):
-        if (self._names != df._names
-                or self._id2names != df._id2names
-                or not all(c1.dtype == c2.dtype
-                           for c1, c2 in zip(self._cols, df._cols))):
+        if (
+            self._names != df._names
+            or self._id2names != df._id2names
+            or not all(c1.dtype == c2.dtype for c1, c2 in zip(self._cols, df._cols))
+        ):
             raise ValueError("Incompatible DataFrames")
         for c1, c2 in zip(self._cols, df._cols):
             c1._data.extend(c2._data)
@@ -53,7 +52,7 @@ class DataFrame():
             ("25%", "percentile", (0.25,)),
             ("50%", "percentile", (0.50,)),
             ("75%", "percentile", (0.75,)),
-            ("Max", "max", ())
+            ("Max", "max", ()),
         ]
         data = ["", *names]
         field_str = "{:>{w}.{w}}"
@@ -62,11 +61,10 @@ class DataFrame():
         for row_name, func, args in to_retrieve:
             data.append(row_name)
             out.append("|" + field_str + "|")
-            data.extend(float(col.__getattribute__(func)(*args))
-                        for col in cols)
+            data.extend(float(col.__getattribute__(func)(*args)) for col in cols)
             out.append((value_str + "|") * len(cols) + "\n")
         try:
-            _, w = os.popen('stty size', 'r').read().split()
+            _, w = os.popen("stty size", "r").read().split()
         except ValueError:
             w = 140
         print("".join(out).format(*data, w=int(w) // (len(cols) + 3)))
@@ -79,11 +77,11 @@ class DataFrame():
         for col in self._cols:
             if col.dtype != float:
                 continue
-            mask = (col == col)
+            mask = col == col
             if index is None:
                 index = mask
             else:
-                index = (index & mask)
+                index = index & mask
         return self[index]
 
     def isna(self):
@@ -92,14 +90,16 @@ class DataFrame():
         return DataFrame(cols, names)
 
     @staticmethod
-    def read_csv(filepath: str,
-                 sep: str = ',',
-                 header: bool = True,
-                 names: Optional[Collection[str]] = None,
-                 dtype: Union[type, Dict[Union[int, str], type]] = None,
-                 skiprows: int = 0,
-                 nrows: int = None,
-                 encoding: str = "utf8") -> "DataFrame":
+    def read_csv(
+        filepath: str,
+        sep: str = ",",
+        header: bool = True,
+        names: Optional[Collection[str]] = None,
+        dtype: Union[type, Dict[Union[int, str], type]] = None,
+        skiprows: int = 0,
+        nrows: int = None,
+        encoding: str = "utf8",
+    ) -> "DataFrame":
         """
         Guess what, this method reads a csv into a DataFrame.
 
@@ -133,8 +133,10 @@ class DataFrame():
                 if nrows is not None and row_i == nrows:
                     break
                 if len(row) != len(cols):
-                    raise ValueError(f"Invalid number of columns at row "
-                                     f"{skiprows + row_i + int(header)}")
+                    raise ValueError(
+                        f"Invalid number of columns at row "
+                        f"{skiprows + row_i + int(header)}"
+                    )
                 for i in range(len(row)):
                     cols[i].append(row[i])
 
@@ -143,17 +145,23 @@ class DataFrame():
             elif isinstance(dtype, Dict):
                 dtype_map = defaultdict(lambda: None, dtype)
                 if names is not None:
-                    dtype_map.update({i: dtype_map[name]
-                                      for i, name in enumerate(names)
-                                      if i not in dtype_map})
+                    dtype_map.update(
+                        {
+                            i: dtype_map[name]
+                            for i, name in enumerate(names)
+                            if i not in dtype_map
+                        }
+                    )
             else:
                 dtype_map = defaultdict(lambda: None)
 
             processed_cols = []
             for col_i, col in enumerate(cols):
-                processed_cols.append(Series(col,
-                                             dtype_map[col_i],  # type: ignore
-                                             try_convert_strings=True))
+                processed_cols.append(
+                    Series(
+                        col, dtype_map[col_i], try_convert_strings=True  # type: ignore
+                    )
+                )
 
             return DataFrame(processed_cols, names=names)
 
@@ -182,8 +190,10 @@ class DataFrame():
         return len(self._cols)
 
     def __repr__(self) -> str:
-        out = [f"bears.DataFrame, ncols={len(self)}, nrows={self._nrows}:\n"
-               f"{'no col names' if not self._names else self._id2names}"]
+        out = [
+            f"bears.DataFrame, ncols={len(self)}, nrows={self._nrows}:\n"
+            f"{'no col names' if not self._names else self._id2names}"
+        ]
         for i in range(min_(self._nrows, 10)):
             out.append(str(self._get_row(i)))
         if len(out) - 1 < self._nrows:
@@ -242,10 +252,8 @@ class DataFrame():
         Because using undocumented private API is so much FUN, isn't it,
         matplotlib developers?
         """
-        cols = [i for i in range(len(self))
-                if self._cols[i].dtype in {int, float}]
+        cols = [i for i in range(len(self)) if self._cols[i].dtype in {int, float}]
         return self[cols]
 
-    def _get_row(self,
-                 row_id: int) -> List:
+    def _get_row(self, row_id: int) -> List:
         return [col[row_id].item() for col in self._cols]

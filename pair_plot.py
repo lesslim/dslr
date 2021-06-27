@@ -13,8 +13,7 @@ def pair_plot(df):
             "Hufflepuff": "yellow",
         }
     )
-    axes = pd.plotting.scatter_matrix(df, c=y,
-                                      figsize=(15, 12), s=10, diagonal="kde")
+    axes = pd.plotting.scatter_matrix(df, c=y, figsize=(15, 12), s=10, diagonal="kde")
     for ax in axes.flatten():
         ax.xaxis.label.set_rotation(90)
         ax.yaxis.label.set_rotation(45)
@@ -40,17 +39,19 @@ if __name__ == "__main__":
     try:
         df = br.read_csv("datasets/dataset_train.csv")
         if args.one:
-            pair_plot(df[
-                [
-                    "Hogwarts House",
-                    "Charms",
-                    "Flying",
-                    "Divination",
-                    "Ancient Runes",
-                    "Astronomy",
-                    "Herbology",
-                ]
-            ].dropna())
+            pair_plot(
+                df[
+                    [
+                        "Hogwarts House",
+                        "Charms",
+                        "Flying",
+                        "Divination",
+                        "Ancient Runes",
+                        "Astronomy",
+                        "Herbology",
+                    ]
+                ].dropna()
+            )
         else:
             pair_plot(df[["Hogwarts House", *df.columns[6:]]].dropna())
     except Exception as e:

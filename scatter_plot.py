@@ -9,8 +9,7 @@ def scatter_plot(df):
     plt.xlabel(df.columns[0])
     plt.ylabel(df.columns[1])
     plt.scatter(
-        df[df.columns[0]], df[df.columns[1]],
-        color="blue", label="students", s=10
+        df[df.columns[0]], df[df.columns[1]], color="blue", label="students", s=10
     )
     plt.legend()
     plt.show()
@@ -43,8 +42,7 @@ if __name__ == "__main__":
 
     try:
         if flags.one or not flags.all:
-            right_df = df[["Astronomy",
-                           "Defense Against the Dark Arts"]].dropna()
+            right_df = df[["Astronomy", "Defense Against the Dark Arts"]].dropna()
             scatter_plot(right_df)
         if flags.all:
             for i in range(6, 18):

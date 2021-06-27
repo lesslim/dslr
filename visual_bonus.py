@@ -7,8 +7,7 @@ import argparse
 
 def plot_embedding(X, df, title=None):
     plt.figure(figsize=(12, 9))
-    colors = ["blue", "green", "brown", "olive",
-              "cyan", "lime", "red", "yellow"]
+    colors = ["blue", "green", "brown", "olive", "cyan", "lime", "red", "yellow"]
     labels = [
         "true Ravenclaw",
         "true Slytherin",
@@ -48,8 +47,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        df = pd.read_csv("datasets/dataset_train.csv",
-                         index_col="Index").dropna()
+        df = pd.read_csv("datasets/dataset_train.csv", index_col="Index").dropna()
         df["Hogwarts House"] = df["Hogwarts House"].map(
             {"Ravenclaw": 0, "Slytherin": 1, "Gryffindor": 2, "Hufflepuff": 3}
         )

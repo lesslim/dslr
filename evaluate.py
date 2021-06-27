@@ -15,15 +15,16 @@ def load_csv(filename):
     predictions).
     """
     datas = list()
-    with open(filename, 'r') as opened_csv:
-        read_csv = csv.reader(opened_csv, delimiter=',')
+    with open(filename, "r") as opened_csv:
+        read_csv = csv.reader(opened_csv, delimiter=",")
         for line in read_csv:
             datas.append(line[1])
     # Clean the header cell
     datas.remove("Hogwarts House")
     return datas
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if os.path.isfile("datasets/dataset_truth.csv"):
         truths = load_csv("datasets/dataset_truth.csv")
     else:
@@ -40,8 +41,7 @@ if __name__ == '__main__':
                 count += 1
     score = float(count) / len(truths)
     print("Your score on test set: %.3f" % score)
-    if score >= .98:
+    if score >= 0.98:
         print("Good job! Mc Gonagall congratulates you.")
     else:
         print("Too bad, Mc Gonagall flunked you.")
-
